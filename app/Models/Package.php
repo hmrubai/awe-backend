@@ -16,6 +16,9 @@ class Package extends Model
         'description',
         'limit',
         'cycle',
+        'promotion_title',
+        'promotion_details',
+        'feature_image',
         'is_active'
     ];
 

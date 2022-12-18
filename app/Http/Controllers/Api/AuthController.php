@@ -40,15 +40,17 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password)
             ]);
 
+            $response_user = [
+                'name' => $user->name, 
+                'email'=> $user->email, 
+                'user_type' => $request->user_type ? $request->user_type : "Student", 
+                'token' => $user->createToken("API TOKEN")->plainTextToken
+            ];
+
             return response()->json([
                 'status' => true,
                 'message' => 'Registration Successful',
-                'data' => [
-                    'name' => $user->name, 
-                    'email'=> $user->email, 
-                    'user_type' => $request->user_type ? $request->user_type : "Student", 
-                    'token' => $user->createToken("API TOKEN")->plainTextToken
-                ]
+                'data' => $response_user
             ], 200);
 
         } catch (\Throwable $th) {
