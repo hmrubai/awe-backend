@@ -30,6 +30,19 @@ class AuthController extends Controller
                 ], 401);
             }
 
+            //$formData = json_decode($request->data, true);
+            
+            $profile_image = null;
+            $profile_url = null;
+            if($request->hasFile('image')){
+                $image = $request->file('image');
+                $time = time();
+                $profile_image = "profile_image_" . $time . '.' . $image->getClientOriginalExtension();
+                $destinationProfile = 'uploads/profile';
+                $image->move($destinationProfile, $profile_image);
+                $profile_url = $destinationProfile . '/' . $profile_image;
+            }
+
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -39,6 +52,12 @@ class AuthController extends Controller
                 'user_type' => $request->user_type ? $request->user_type : "Student",
                 'password' => Hash::make($request->password)
             ]);
+
+            if($request->hasFile('image')){
+                User::where('id', $user->id)->update([
+                    'image' => $profile_url
+                ]);
+            }
 
             $response_user = [
                 'name' => $user->name, 
