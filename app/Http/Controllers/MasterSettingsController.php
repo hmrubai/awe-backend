@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Grade;
+use App\Models\Country;
 use App\Models\Category;
 use App\Models\PackageType;
 use Illuminate\Http\Request;
@@ -40,6 +41,17 @@ class MasterSettingsController extends Controller
             'status' => true,
             'message' => 'List Successful',
             'data' => $category_list
+        ], 200);
+    }
+
+    public function countryList(Request $request)
+    {
+        $country_list = Country::select('id', 'country_name')->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'List Successful',
+            'data' => $country_list
         ], 200);
     }
 }

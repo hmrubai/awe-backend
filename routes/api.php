@@ -11,6 +11,7 @@ use App\Http\Controllers\TopicController;
 
 Route::post('/auth/register', [AuthController::class, 'registerUser']);
 Route::post('/auth/login', [AuthController::class, 'loginUser']);
+Route::get('country-list', [MasterSettingsController::class, 'countryList']);
 
 Route::middleware('auth:sanctum')->group( function () {
     Route::get('/user', function (Request $request) {
