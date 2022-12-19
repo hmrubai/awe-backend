@@ -108,10 +108,22 @@ class AuthController extends Controller
 
             $user = User::where('email', $request->email)->first();
 
+            $response_user = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'user_type' => $user->user_type,
+                'image' => $user->image,
+                'address' => $user->address,
+                'contact_no' => $user->contact_no,
+                'updated_at' => $user->updated_at,
+                'token' => $user->createToken("API TOKEN")->plainTextToken
+            ];
+
             return response()->json([
                 'status' => true,
                 'message' => 'User Logged In Successfully',
-                'data' => ['token' => $user->createToken("API TOKEN")->plainTextToken]
+                'data' => $response_user
             ], 200);
 
         } catch (\Throwable $th) {

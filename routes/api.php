@@ -30,5 +30,16 @@ Route::middleware('auth:sanctum')->group( function () {
     // Topic
     Route::get('all-topic-list', [TopicController::class, 'allTopicList']);
     Route::get('filter-topic-list', [TopicController::class, 'fillterTopicList']);
+
+    //Admin
+    Route::get('admin/syllabus-list', [MasterSettingsController::class, 'admin_PackageTypeList']);
+    Route::post('admin/syllabus-save-or-update', [MasterSettingsController::class, 'saveOrUpdatePackageType']);
+    Route::get('admin/grade-list', [MasterSettingsController::class, 'adminGradeList']);
+    Route::post('admin/grade-save-or-update', [MasterSettingsController::class, 'saveOrUpdateGrade']);
+    Route::get('admin/category-list', [MasterSettingsController::class, 'adminCategoryList']);
+    Route::post('admin/category-save-or-update', [MasterSettingsController::class, 'saveOrUpdateCategory']);
+
     
+    
+
 });
