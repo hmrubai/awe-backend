@@ -39,7 +39,11 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::get('admin/category-list', [MasterSettingsController::class, 'adminCategoryList']);
     Route::post('admin/category-save-or-update', [MasterSettingsController::class, 'saveOrUpdateCategory']);
 
-    
+    Route::get('admin/package-list', [PackageController::class, 'adminPackageList']);
+    Route::post('admin/package-save-or-update', [PackageController::class, 'saveOrUpdatePackage']);
+    Route::get('admin/benefit-list-by-id/{package_id}', [PackageController::class, 'adminBenefitListByID']);
+    Route::post('admin/benefit-delete', [PackageController::class, 'adminDeleteBenefitByID']);
+
     
 
 });
