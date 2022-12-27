@@ -18,6 +18,8 @@ class User extends Authenticatable
         'email',
         'contact_no',
         'address',
+        'institution',
+        'education',
         'image',
         'country_id',
         'password',

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\MasterSettingsController;
+use App\Http\Controllers\PromotionalNoticeController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\TopicController;
 
@@ -27,9 +28,12 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::get('package-list', [PackageController::class, 'packageList']);
     Route::get('package-details-by-id/{package_id}', [PackageController::class, 'packageDetailsByID']);
 
-    // Topic
+    //Topic
     Route::get('all-topic-list', [TopicController::class, 'allTopicList']);
     Route::get('filter-topic-list', [TopicController::class, 'fillterTopicList']);
+
+    //Promotional Notice
+    Route::get('promotional-news-list', [PromotionalNoticeController::class, 'promotionalNoticeList']);
 
     //Admin
     Route::get('admin/syllabus-list', [MasterSettingsController::class, 'admin_PackageTypeList']);
@@ -42,8 +46,12 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::get('admin/package-list', [PackageController::class, 'adminPackageList']);
     Route::post('admin/package-save-or-update', [PackageController::class, 'saveOrUpdatePackage']);
     Route::get('admin/benefit-list-by-id/{package_id}', [PackageController::class, 'adminBenefitListByID']);
+    Route::post('admin/benefit-save-or-update', [PackageController::class, 'saveOrUpdateBenefit']);
     Route::post('admin/benefit-delete', [PackageController::class, 'adminDeleteBenefitByID']);
 
-    
+    Route::get('admin/news-list', [PromotionalNoticeController::class, 'adminPromotionalNoticeList']);
+    Route::post('admin/news-save-or-update', [PromotionalNoticeController::class, 'saveOrUpdatePromotionalNotice']);
 
+    Route::get('admin/topic-list', [TopicController::class, 'adminTopicList']);
+    
 });

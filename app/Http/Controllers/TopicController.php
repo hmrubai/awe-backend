@@ -28,6 +28,7 @@ class TopicController extends Controller
             ->leftJoin('package_types', 'package_types.id', 'topics.package_type_id')
             ->leftJoin('categories', 'categories.id', 'topics.catagory_id')
             ->leftJoin('grades', 'grades.id', 'topics.grade_id')
+            ->orderBy('topics.title', 'ASC')
             ->where('topics.is_active', true)
             ->get();
 
@@ -75,12 +76,45 @@ class TopicController extends Controller
             ->leftJoin('package_types', 'package_types.id', 'topics.package_type_id')
             ->leftJoin('categories', 'categories.id', 'topics.catagory_id')
             ->leftJoin('grades', 'grades.id', 'topics.grade_id')
+            ->orderBy('topics.title', 'ASC')
             ->where('topics.is_active', true)
             ->get();
 
         return response()->json([
             'status' => true,
             'message' => 'Filtered List',
+            'data' => $topic_list
+        ], 200);
+    }
+
+    public function adminTopicList(Request $request)
+    {
+        $topic_list = Topic::select(
+                'topics.id', 
+                'topics.title', 
+                'topics.hint', 
+                'topics.country_id',
+                'countries.country_name',
+                'topics.package_type_id as syllabus_id',
+                'package_types.name as syllabus_name',
+                'topics.catagory_id',
+                'categories.name as category_name',
+                'topics.grade_id',
+                'grades.name as grade_name',
+                'topics.limit',
+                'topics.is_active'
+            )
+            ->leftJoin('countries', 'countries.id', 'topics.country_id')
+            ->leftJoin('package_types', 'package_types.id', 'topics.package_type_id')
+            ->leftJoin('categories', 'categories.id', 'topics.catagory_id')
+            ->leftJoin('grades', 'grades.id', 'topics.grade_id')
+            ->orderBy('topics.title', 'ASC')
+            //->where('topics.is_active', true)
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'List Successful',
             'data' => $topic_list
         ], 200);
     }

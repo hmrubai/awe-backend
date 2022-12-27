@@ -64,6 +64,44 @@ class PackageController extends Controller
         ], 200);
     }
 
+    public function saveOrUpdateBenefit (Request $request)
+    {
+        try {
+            if($request->id){
+                $benefit = PackageBenefitDetail::where('id', $request->id)->update($request->all());
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Benefit has been updated successfully',
+                    'data' => []
+                ], 200);
+
+            } else {
+                $isExist = PackageBenefitDetail::where('benefit', $request->benefit)->first();
+                if (empty($isExist)) {
+                    $benefit = PackageBenefitDetail::create($request->all());
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Benefit has been created successfully',
+                        'data' => []
+                    ], 200);
+                }else{
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Benefit already Exist!',
+                        'data' => []
+                    ], 200);
+                }
+            }
+
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 200);
+        }
+    }
+
     public function adminPackageList(Request $request){
         $package_list = Package::all();
 

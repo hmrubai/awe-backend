@@ -49,6 +49,8 @@ class AuthController extends Controller
                 'contact_no' => $request->contact_no,
                 'country_id' => $request->country_id,
                 'address' => $request->address,
+                'institution' => $request->institution,
+                'education' => $request->education,
                 'user_type' => $request->user_type ? $request->user_type : "Student",
                 'password' => Hash::make($request->password)
             ]);
@@ -115,6 +117,8 @@ class AuthController extends Controller
                 'user_type' => $user->user_type,
                 'image' => $user->image,
                 'address' => $user->address,
+                'institution' => $user->institution,
+                'education' => $user->education,
                 'contact_no' => $user->contact_no,
                 'updated_at' => $user->updated_at,
                 'token' => $user->createToken("API TOKEN")->plainTextToken
