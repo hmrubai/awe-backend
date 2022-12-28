@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\User;
 use App\Models\Topic;
 use Illuminate\Http\Request;
@@ -22,12 +23,15 @@ class TopicController extends Controller
                 'categories.name as category_name',
                 'topics.grade_id',
                 'grades.name as grade_name',
+                'topics.school_id',
+                'school_information.title as school_name',
                 'topics.limit'
             )
             ->leftJoin('countries', 'countries.id', 'topics.country_id')
             ->leftJoin('package_types', 'package_types.id', 'topics.package_type_id')
             ->leftJoin('categories', 'categories.id', 'topics.catagory_id')
             ->leftJoin('grades', 'grades.id', 'topics.grade_id')
+            ->leftJoin('school_information', 'school_information.id', 'topics.school_id')
             ->orderBy('topics.title', 'ASC')
             ->where('topics.is_active', true)
             ->get();
@@ -58,6 +62,8 @@ class TopicController extends Controller
                 'categories.name as category_name',
                 'topics.grade_id',
                 'grades.name as grade_name',
+                'topics.school_id',
+                'school_information.title as school_name',
                 'topics.limit'
             )
             ->when($package_type_id, function ($query) use ($package_type_id){
@@ -76,6 +82,7 @@ class TopicController extends Controller
             ->leftJoin('package_types', 'package_types.id', 'topics.package_type_id')
             ->leftJoin('categories', 'categories.id', 'topics.catagory_id')
             ->leftJoin('grades', 'grades.id', 'topics.grade_id')
+            ->leftJoin('school_information', 'school_information.id', 'topics.school_id')
             ->orderBy('topics.title', 'ASC')
             ->where('topics.is_active', true)
             ->get();
@@ -101,6 +108,8 @@ class TopicController extends Controller
                 'categories.name as category_name',
                 'topics.grade_id',
                 'grades.name as grade_name',
+                'topics.school_id',
+                'school_information.title as school_name',
                 'topics.limit',
                 'topics.is_active'
             )
@@ -108,6 +117,7 @@ class TopicController extends Controller
             ->leftJoin('package_types', 'package_types.id', 'topics.package_type_id')
             ->leftJoin('categories', 'categories.id', 'topics.catagory_id')
             ->leftJoin('grades', 'grades.id', 'topics.grade_id')
+            ->leftJoin('school_information', 'school_information.id', 'topics.school_id')
             ->orderBy('topics.title', 'ASC')
             //->where('topics.is_active', true)
             ->get();

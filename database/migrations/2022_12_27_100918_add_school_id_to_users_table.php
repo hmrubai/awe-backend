@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddCountryIdToUsersTable extends Migration
+class AddSchoolIdToUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class AddCountryIdToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->bigInteger('country_id')->nullable()->after('address');
+            $table->bigInteger('school_id')->nullable()->after('address');
         });
     }
 
@@ -26,7 +26,7 @@ class AddCountryIdToUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('country_id');
+            $table->dropColumn('school_id');
         });
     }
 }

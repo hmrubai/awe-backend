@@ -30,8 +30,6 @@ class AuthController extends Controller
                 ], 401);
             }
 
-            //$formData = json_decode($request->data, true);
-            
             $profile_image = null;
             $profile_url = null;
             if($request->hasFile('image')){

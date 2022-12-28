@@ -22,6 +22,7 @@ class User extends Authenticatable
         'education',
         'image',
         'country_id',
+        'school_id',
         'password',
     ];
 

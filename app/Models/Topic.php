@@ -18,6 +18,7 @@ class Topic extends Model
         'package_type_id',
         'catagory_id',
         'grade_id',
+        'school_id',
         'limit',
         'is_active'
     ];

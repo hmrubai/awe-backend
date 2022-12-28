@@ -8,11 +8,13 @@ use App\Http\Controllers\MasterSettingsController;
 use App\Http\Controllers\PromotionalNoticeController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\TopicController;
+use App\Http\Controllers\SchoolController;
 
 
 Route::post('/auth/register', [AuthController::class, 'registerUser']);
 Route::post('/auth/login', [AuthController::class, 'loginUser']);
 Route::get('country-list', [MasterSettingsController::class, 'countryList']);
+Route::get('school-list', [SchoolController::class, 'schoolList']);
 
 Route::middleware('auth:sanctum')->group( function () {
     Route::get('/user', function (Request $request) {
@@ -53,5 +55,9 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::post('admin/news-save-or-update', [PromotionalNoticeController::class, 'saveOrUpdatePromotionalNotice']);
 
     Route::get('admin/topic-list', [TopicController::class, 'adminTopicList']);
+
+    Route::get('admin/school-list', [SchoolController::class, 'adminSchoolList']);
+    Route::post('admin/school-save-or-update', [SchoolController::class, 'saveOrUpdateSchool']);
+    
     
 });

@@ -15,6 +15,14 @@ class CreateSchoolInformationTable extends Migration
     {
         Schema::create('school_information', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
+            $table->text('details')->nullable();
+            $table->string('address')->nullable();
+            $table->string('email');
+            $table->string('phone_no')->nullable();
+            $table->string('logo')->nullable();
+            $table->text('contact_person')->nullable();
+            $table->boolean('is_active')->default(1);
             $table->timestamps();
         });
     }

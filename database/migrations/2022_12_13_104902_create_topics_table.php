@@ -17,7 +17,7 @@ class CreateTopicsTable extends Migration
             $table->id();
             $table->text('title');
             $table->longText('hint');
-            $table->string('country_id')->nullable();
+            $table->bigInteger('country_id')->nullable();
             $table->bigInteger('package_type_id');
             $table->bigInteger('catagory_id');
             $table->bigInteger('grade_id')->nullable();
