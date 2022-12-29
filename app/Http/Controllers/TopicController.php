@@ -119,7 +119,6 @@ class TopicController extends Controller
             ->leftJoin('grades', 'grades.id', 'topics.grade_id')
             ->leftJoin('school_information', 'school_information.id', 'topics.school_id')
             ->orderBy('topics.title', 'ASC')
-            //->where('topics.is_active', true)
             ->get();
 
         return response()->json([
@@ -127,6 +126,69 @@ class TopicController extends Controller
             'message' => 'List Successful',
             'data' => $topic_list
         ], 200);
+    }
+
+    public function saveOrUpdateTopic (Request $request)
+    {
+        try {
+            $formData = json_decode($request->data, true);
+            if($formData['id']){
+
+                $topic = Topic::where('id', $formData['id'])->update([
+                    "title" => $formData['title'],
+                    "hint" => $formData['hint'],
+                    "country_id" => $formData['country_id'],
+                    "package_type_id" => $formData['package_type_id'],
+                    "catagory_id" => $formData['catagory_id'],
+                    "grade_id" => $formData['grade_id'],
+                    "school_id" => $formData['school_id'],
+                    "limit" => $formData['limit'],
+                    "is_active" => $formData['is_active']
+                ]);
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Topic has been updated successfully',
+                    'data' => []
+                ], 200);
+
+            } else {
+                $isExist = Topic::where('title', $formData['title'])->first();
+                if (empty($isExist)) 
+                {
+                    $topic = Topic::create([
+                        "title" => $formData['title'],
+                        "hint" => $formData['hint'],
+                        "country_id" => $formData['country_id'],
+                        "package_type_id" => $formData['package_type_id'],
+                        "catagory_id" => $formData['catagory_id'],
+                        "grade_id" => $formData['grade_id'],
+                        "school_id" => $formData['school_id'],
+                        "limit" => $formData['limit'],
+                        "is_active" => $formData['is_active']
+                    ]);
+
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'Topic has been created successfully',
+                        'data' => []
+                    ], 200);
+                }else{
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'Topic already Exist!',
+                        'data' => []
+                    ], 200);
+                }
+            }
+
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 200);
+        }
     }
 
 }

@@ -55,6 +55,7 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::post('admin/news-save-or-update', [PromotionalNoticeController::class, 'saveOrUpdatePromotionalNotice']);
 
     Route::get('admin/topic-list', [TopicController::class, 'adminTopicList']);
+    Route::post('admin/topic-save-or-update', [TopicController::class, 'saveOrUpdateTopic']);
 
     Route::get('admin/school-list', [SchoolController::class, 'adminSchoolList']);
     Route::post('admin/school-save-or-update', [SchoolController::class, 'saveOrUpdateSchool']);
