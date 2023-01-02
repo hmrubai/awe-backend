@@ -9,6 +9,7 @@ use App\Http\Controllers\PromotionalNoticeController;
 use App\Http\Controllers\PackageController;
 use App\Http\Controllers\TopicController;
 use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\ConsumeController;
 
 
 Route::post('/auth/register', [AuthController::class, 'registerUser']);
@@ -33,6 +34,9 @@ Route::middleware('auth:sanctum')->group( function () {
     //Topic
     Route::get('all-topic-list', [TopicController::class, 'allTopicList']);
     Route::get('filter-topic-list', [TopicController::class, 'fillterTopicList']);
+
+    //Package Details (For User)
+    Route::get('my-package-list', [ConsumeController::class, 'myPackageList']);
 
     //Promotional Notice
     Route::get('promotional-news-list', [PromotionalNoticeController::class, 'promotionalNoticeList']);
@@ -59,6 +63,5 @@ Route::middleware('auth:sanctum')->group( function () {
 
     Route::get('admin/school-list', [SchoolController::class, 'adminSchoolList']);
     Route::post('admin/school-save-or-update', [SchoolController::class, 'saveOrUpdateSchool']);
-    
     
 });
