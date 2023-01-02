@@ -10,6 +10,7 @@ use App\Http\Controllers\PackageController;
 use App\Http\Controllers\TopicController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\ConsumeController;
+use App\Http\Controllers\PaymentController;
 
 
 Route::post('/auth/register', [AuthController::class, 'registerUser']);
@@ -63,5 +64,8 @@ Route::middleware('auth:sanctum')->group( function () {
 
     Route::get('admin/school-list', [SchoolController::class, 'adminSchoolList']);
     Route::post('admin/school-save-or-update', [SchoolController::class, 'saveOrUpdateSchool']);
+    
+    //Payment 
+    Route::post('mobile/make-payment', [PaymentController::class, 'makePaymentMobile']);
     
 });

@@ -132,21 +132,16 @@ class PackageController extends Controller
                     $feature_url = $destinationProfile . '/' . $feature_image;
                 }
 
-                $type = Package::where('id', $formData['id'])->update([
+                Package::where('id', $formData['id'])->update([
                     "title" => $formData['title'],
                     "description" => $formData['description'],
                     "limit" => $formData['limit'],
                     "cycle" => $formData['cycle'],
+                    'feature_image' => $feature_url,
                     "promotion_title" => $formData['promotion_title'],
                     "promotion_details" => $formData['promotion_details'],
                     "is_active" => $formData['is_active']
                 ]);
-
-                if($request->hasFile('file')){
-                    Package::where('id', $formData['id'])->update([
-                        'feature_image' => $feature_url
-                    ]);
-                }
 
                 return response()->json([
                     'status' => true,
@@ -168,21 +163,16 @@ class PackageController extends Controller
                         $feature_url = $destinationProfile . '/' . $feature_image;
                     }
 
-                    $package = Package::create([
+                    Package::create([
                         "title" => $formData['title'],
                         "description" => $formData['description'],
                         "limit" => $formData['limit'],
                         "cycle" => $formData['cycle'],
+                        'feature_image' => $feature_url,
                         "promotion_title" => $formData['promotion_title'],
                         "promotion_details" => $formData['promotion_details'],
                         "is_active" => $formData['is_active']
                     ]);
-
-                    if($request->hasFile('file')){
-                        Package::where('id', $package->id)->update([
-                            'feature_image' => $feature_url
-                        ]);
-                    }
 
                     return response()->json([
                         'status' => true,
