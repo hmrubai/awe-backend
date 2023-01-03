@@ -67,5 +67,7 @@ Route::middleware('auth:sanctum')->group( function () {
     
     //Payment 
     Route::post('mobile/make-payment', [PaymentController::class, 'makePaymentMobile']);
+    Route::get('payment-list', [PaymentController::class, 'myPaymentList']);
+    Route::get('package-details-by-payment-id/{payment_id}', [PaymentController::class, 'packageDetailsByPaymentID']);
     
 });

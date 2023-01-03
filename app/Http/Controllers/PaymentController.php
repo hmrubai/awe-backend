@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 use Exception;
 use App\Models\User;
@@ -106,6 +107,83 @@ class PaymentController extends Controller
             'status' => true,
             'message' => 'Payment Successful',
             'data' => []
+        ], 200);
+    }
+
+    public function myPaymentList (Request $request)
+    {
+        $user_id = $request->user()->id;
+        $payment = Payment::select(
+            'payments.*',
+            'packages.title as packages_title', 
+            'packages.feature_image', 
+            'packages.description as packages_description',
+        )
+        ->leftJoin('packages', 'packages.id', 'payments.package_id')
+        ->where('user_id', $user_id)
+        ->get();
+
+        foreach ($payment as $item) {
+            $details = TopicConsume::where('payment_id', $item->id)->first();
+            $item->expiry_date = $details['expiry_date'];
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Payment list successful',
+            'data' => $payment
+        ], 200);
+    }
+
+    public function packageDetailsByPaymentID(Request $request)
+    {
+        $user_id = $request->user()->id;
+        $payment_id = $request->payment_id ? $request->payment_id : 0;
+        
+        $package_details = TopicConsume::select(
+                'topic_consumes.package_id', 
+                'topic_consumes.payment_id',
+                DB::raw("SUM(topic_consumes.balance) as balance"),
+                DB::raw("SUM(topic_consumes.consumme) as consumme"),
+                'topic_consumes.expiry_date', 
+                'topic_consumes.created_at as purchased_date',
+                'packages.title as packages_title', 
+                'packages.feature_image', 
+                'packages.description as packages_description',
+            )
+            ->where('topic_consumes.user_id', $user_id)
+            ->where('topic_consumes.payment_id', $payment_id)
+            ->leftJoin('packages', 'packages.id', 'topic_consumes.package_id')
+            ->groupBy('topic_consumes.payment_id')
+            ->get();
+        
+            foreach ($package_details as $item) {
+                $packageDate = Carbon::parse($item->expiry_date);
+                $now = Carbon::now();
+                $item->balance = intval($item->balance);
+                $item->consumme = intval($item->consumme);
+
+                $item->details = TopicConsume::select(
+                    'topic_consumes.package_type_id',
+                    'topic_consumes.balance',
+                    'topic_consumes.consumme',
+                    'package_types.name as syllabus',
+                )
+                ->leftJoin('package_types', 'package_types.id', 'topic_consumes.package_type_id')
+                ->where('topic_consumes.payment_id', $item->payment_id)
+                ->get();
+    
+                if ($now->gte($packageDate)) { 
+                    $item->is_expired = true;
+                }else{
+                    $item->is_expired = false; 
+                }
+            }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Details Successful',
+            'data' => $package_details
         ], 200);
     }
 }

@@ -22,6 +22,7 @@ class ConsumeController extends Controller
                 'topic_consumes.expiry_date', 
                 'topic_consumes.created_at as purchased_date',
                 'packages.title as packages_title', 
+                'packages.feature_image', 
                 'packages.description as packages_description',
             )
             ->where('user_id', $user_id)
@@ -45,7 +46,7 @@ class ConsumeController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'List Successful',
+            'message' => "Successful",
             'data' => $package_list
         ], 200);
     }
