@@ -50,6 +50,7 @@ class PaymentController extends Controller
         $user = User::where('id', $user_id)->first();
         $package = Package::where('id', $request->package_id)->first();
 
+        //Check is package exist or not
         if(empty($package)){
             return response()->json([
                 'status' => false,
@@ -139,51 +140,86 @@ class PaymentController extends Controller
     {
         $user_id = $request->user()->id;
         $payment_id = $request->payment_id ? $request->payment_id : 0;
-        
-        $package_details = TopicConsume::select(
-                'topic_consumes.package_id', 
-                'topic_consumes.payment_id',
-                DB::raw("SUM(topic_consumes.balance) as balance"),
-                DB::raw("SUM(topic_consumes.consumme) as consumme"),
-                'topic_consumes.expiry_date', 
-                'topic_consumes.created_at as purchased_date',
-                'packages.title as packages_title', 
-                'packages.feature_image', 
-                'packages.description as packages_description',
-            )
+
+        $details = Payment::select(
+            'payments.id as payment_id',
+            'payments.package_id', 
+            'packages.title as packages_title', 
+            'packages.feature_image', 
+            'packages.description as packages_description',
+            'payments.created_at as purchased_date',
+        )
+        ->where('payments.id', $payment_id)
+        ->leftJoin('packages', 'packages.id', 'payments.package_id')
+        ->first();
+
+        $list = TopicConsume::select('topic_consumes.balance', 'topic_consumes.consumme', 'package_types.name as syllabus', 'topic_consumes.package_type_id')
+            ->leftJoin('package_types', 'package_types.id', 'topic_consumes.package_type_id')
             ->where('topic_consumes.user_id', $user_id)
             ->where('topic_consumes.payment_id', $payment_id)
-            ->leftJoin('packages', 'packages.id', 'topic_consumes.package_id')
-            ->groupBy('topic_consumes.payment_id')
+            ->orderBy('package_types.name', "ASC")
             ->get();
-        
-            foreach ($package_details as $item) {
-                $packageDate = Carbon::parse($item->expiry_date);
-                $now = Carbon::now();
-                $item->balance = intval($item->balance);
-                $item->consumme = intval($item->consumme);
 
-                $item->details = TopicConsume::select(
-                    'topic_consumes.package_type_id',
-                    'topic_consumes.balance',
-                    'topic_consumes.consumme',
-                    'package_types.name as syllabus',
-                )
-                ->leftJoin('package_types', 'package_types.id', 'topic_consumes.package_type_id')
-                ->where('topic_consumes.payment_id', $item->payment_id)
-                ->get();
-    
-                if ($now->gte($packageDate)) { 
-                    $item->is_expired = true;
-                }else{
-                    $item->is_expired = false; 
-                }
-            }
+        $details->balance = $list->sum('balance');
+        $details->consumme = $list->sum('consumme');
+        $expiry_date = TopicConsume::select('expiry_date')->where('user_id', $user_id)->where('payment_id', $payment_id)->first();
+        $details->expiry_date = $expiry_date->expiry_date;
+        $details->details = $list;
 
         return response()->json([
             'status' => true,
             'message' => 'Details Successful',
-            'data' => $package_details
+            'data' => $details
         ], 200);
     }
+
+
+
+
+
+    // //$package_details = TopicConsume::select(
+    //     'topic_consumes.package_id', 
+    //     'topic_consumes.payment_id',
+    //     DB::raw("SUM(topic_consumes.balance) as balance"),
+    //     DB::raw("SUM(topic_consumes.consumme) as consumme"),
+    //     'topic_consumes.expiry_date', 
+    //     'topic_consumes.created_at as purchased_date',
+    //     'packages.title as packages_title', 
+    //     'packages.feature_image', 
+    //     'packages.description as packages_description',
+    // )
+    // ->where('topic_consumes.user_id', $user_id)
+    // ->where('topic_consumes.payment_id', $payment_id)
+    // ->leftJoin('packages', 'packages.id', 'topic_consumes.package_id')
+    // ->groupBy('topic_consumes.payment_id')
+    // ->first();
+
+    // return response()->json([
+    //     'status' => true,
+    //     'message' => 'Details Successful',
+    //     'data' => $package_details->payment_id
+    // ], 200);
+
+    // foreach ($package_details as $item) {
+    //     $packageDate = Carbon::parse($item->expiry_date);
+    //     $now = Carbon::now();
+    //     $item->balance = intval($item->balance);
+    //     $item->consumme = intval($item->consumme);
+
+    //     $item->details = TopicConsume::select(
+    //         'topic_consumes.package_type_id',
+    //         'topic_consumes.balance',
+    //         'topic_consumes.consumme',
+    //         'package_types.name as syllabus',
+    //     )
+    //     ->leftJoin('package_types', 'package_types.id', 'topic_consumes.package_type_id')
+    //     ->where('topic_consumes.payment_id', $item->payment_id)
+    //     ->get();
+
+    //     if ($now->gte($packageDate)) { 
+    //         $item->is_expired = true;
+    //     }else{
+    //         $item->is_expired = false; 
+    //     }
+    // }
 }
