@@ -17,6 +17,67 @@ use Illuminate\Http\Request;
 
 class CorrectionController extends Controller
 {
+    public function checkAvailable(Request $request){
+        $student_id = $request->user()->id;
+
+        $topic = Topic::where('id', $request->topic_id)->first();
+        if(empty($topic)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Topic not found!',
+                'data' => []
+            ], 200);
+        }
+
+        $package = Package::where('id', $request->package_id)->first();
+        //Check is package exist or not
+        if(empty($package)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Package not found!',
+                'data' => []
+            ], 200);
+        }
+
+        $correction_consume = TopicConsume::where('user_id', $student_id)->where('package_id', $request->package_id)->where('package_type_id', $topic->package_type_id)->get();
+
+        if(!sizeof($correction_consume)){
+            return response()->json([
+                'status' => false,
+                'message' => 'You do not have any correction limit!, Please check your package details!',
+                'data' => []
+            ], 200);
+        }
+        
+        $is_expired = false; 
+        foreach ($correction_consume as $item) {
+            $packageDate = Carbon::parse($item->expiry_date);
+            $now = Carbon::now();
+            $is_expired = false;
+
+            $balance = intval($item->balance);
+            $consumme = intval($item->consumme);
+    
+            if ($now->gte($packageDate)) { 
+                $is_expired = true;
+            }
+
+            if(($balance > $consumme) && !$is_expired){
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Proceed',
+                    'data' => []
+                ], 200);
+            }
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'You do not have any correction limit!, Please check your package details!',
+            'data' => []
+        ], 200);
+    }
+
     public function submitCorrection(Request $request)
     {
         $student_id = $request->user()->id;
@@ -167,6 +228,275 @@ class CorrectionController extends Controller
         $correction_details->admin_name = null;
         $correction_details->admin_email = null;
         $correction_details->admin_image = null;
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Correction submitted successful.',
+            'data' => $correction_details
+        ], 200);
+    }
+
+    public function editCorrectionByStudent(Request $request)
+    {
+        $student_id = $request->user()->id;
+        if(!$request->correction_id){
+            return response()->json([
+                'status' => false,
+                'message' => 'Please, attach correction ID!',
+                'data' => []
+            ], 200);
+        }
+
+        $correction_exist = Correction::where('id', $request->correction_id)->where('status', "Submitted")->first();
+        //Check is Correction exist or not
+        if(empty($correction_exist)){
+            return response()->json([
+                'status' => false,
+                'message' => 'You can not modify your correction! Accepted by expert!',
+                'data' => []
+            ], 200);
+        }
+
+        if(!$request->student_correction){
+            return response()->json([
+                'status' => false,
+                'message' => 'Please, attach answer!',
+                'data' => []
+            ], 200);
+        }
+
+        if($correction_exist->user_id != $student_id){
+            return response()->json([
+                'status' => false,
+                'message' => 'You can not modify someone correction!',
+                'data' => []
+            ], 200);
+        }
+
+        $correction_date = Carbon::now();
+
+        Correction::where('id', $request->correction_id)->update([
+            'student_correction' => $request->student_correction
+        ]);
+
+        $correction_details = Correction::select(
+            'corrections.id',
+            'corrections.user_id',
+            'corrections.expert_id',
+            'corrections.topic_id',
+            'corrections.package_id',
+            'corrections.package_type_id as syllabus_id',
+            'corrections.deadline',
+            'corrections.is_accepted',
+            'corrections.is_seen_by_expert',
+            'corrections.is_seen_by_student',
+            'corrections.is_student_resubmited',
+            'corrections.student_correction',
+            'corrections.expert_correction_note',
+            'corrections.expert_correction_feedback',
+            'corrections.grade',
+            'corrections.student_rewrite',
+            'corrections.expert_final_note',
+            'corrections.student_correction_date',
+            'corrections.expert_correction_date',
+            'corrections.completed_date',
+            'corrections.student_resubmission_date',
+            'corrections.expert_final_note_date',
+            'corrections.rating',
+            'corrections.rating_note',
+            'corrections.status',
+            'topics.title as topic_title',
+            'topics.hint',
+            'users.name as student_name',
+            'users.email as student_email',
+            'users.image as student_image',
+            'packages.title as package_name',
+            'package_types.name as syllabus',
+            'school_information.title as school_name'
+        )
+        ->leftJoin('users', 'users.id', 'corrections.user_id')
+        ->leftJoin('topics', 'topics.id', 'corrections.topic_id')
+        ->leftJoin('packages', 'packages.id', 'corrections.package_id')
+        ->leftJoin('package_types', 'package_types.id', 'corrections.package_type_id')
+        ->leftJoin('school_information', 'school_information.id', 'corrections.school_id')
+        ->where('corrections.id', $request->correction_id)
+        ->first();
+
+        $startTime = Carbon::parse(Carbon::now());
+        $finishTime = Carbon::parse($correction_details->deadline);
+
+        if ($correction_date->gte($finishTime)) { 
+            $correction_details->duration = 0;
+        }else{
+            $correction_details->duration = $finishTime->diffInSeconds($startTime);
+        }
+
+        if($correction_details->expert_id){
+            $expert = User::where('id', $correction_details->expert_id)->first();
+            if(!empty($expert)){
+                $correction_details->expert_name = $expert->name;
+                $correction_details->expert_email = $expert->email;
+                $correction_details->expert_image = $expert->image;
+            }else{
+                $correction_details->expert_name = null;
+                $correction_details->expert_email = null;
+                $correction_details->expert_image = null;
+            }
+        }else{
+            $correction_details->expert_name = null;
+            $correction_details->expert_email = null;
+            $correction_details->expert_image = null;
+        }
+
+        if($correction_details->admin_id){
+            $admin = User::where('id', $correction_details->admin_id)->first();
+            if(!empty($admin)){
+                $correction_details->admin_name = $admin->name;
+                $correction_details->admin_email = $admin->email;
+                $correction_details->admin_image = $admin->image;
+            }else{
+                $correction_details->admin_name = null;
+                $correction_details->admin_email = null;
+                $correction_details->admin_image = null;
+            }
+        }else{
+            $correction_details->admin_name = null;
+            $correction_details->admin_email = null;
+            $correction_details->admin_image = null;
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Correction updated successful.',
+            'data' => $correction_details
+        ], 200);
+    }
+
+    public function submitFeedback(Request $request)
+    {
+        $expert_id = $request->user()->id;
+        if(!$request->correction_id){
+            return response()->json([
+                'status' => false,
+                'message' => 'Please, attach correction ID!',
+                'data' => []
+            ], 200);
+        }
+
+        $correction_exist = Correction::where('id', $request->correction_id)->where('status', "Accepted")->first();
+        //Check is package exist or not
+        if(empty($correction_exist)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Correction not exist!!',
+                'data' => []
+            ], 200);
+        }
+
+        if($correction_exist->expert_id != $expert_id){
+            return response()->json([
+                'status' => false,
+                'message' => 'Correction already accepted by another expert!',
+                'data' => []
+            ], 200);
+        }
+
+        $correction_date = Carbon::now();
+
+        Correction::where('id', $request->correction_id)->update([
+            'status' => "Corrected",
+            'expert_correction_note' => $request->expert_correction_note,
+            'expert_correction_feedback' => $request->expert_correction_feedback,
+            'grade' => $request->grade ? $request->grade : "BelowSatisfaction",
+            'expert_correction_date' => $correction_date,
+            'completed_date' => $correction_date
+        ]);
+
+        $correction_details = Correction::select(
+            'corrections.id',
+            'corrections.user_id',
+            'corrections.expert_id',
+            'corrections.topic_id',
+            'corrections.package_id',
+            'corrections.package_type_id as syllabus_id',
+            'corrections.deadline',
+            'corrections.is_accepted',
+            'corrections.is_seen_by_expert',
+            'corrections.is_seen_by_student',
+            'corrections.is_student_resubmited',
+            'corrections.student_correction',
+            'corrections.expert_correction_note',
+            'corrections.expert_correction_feedback',
+            'corrections.grade',
+            'corrections.student_rewrite',
+            'corrections.expert_final_note',
+            'corrections.student_correction_date',
+            'corrections.expert_correction_date',
+            'corrections.completed_date',
+            'corrections.student_resubmission_date',
+            'corrections.expert_final_note_date',
+            'corrections.rating',
+            'corrections.rating_note',
+            'corrections.status',
+            'topics.title as topic_title',
+            'topics.hint',
+            'users.name as student_name',
+            'users.email as student_email',
+            'users.image as student_image',
+            'packages.title as package_name',
+            'package_types.name as syllabus',
+            'school_information.title as school_name'
+        )
+        ->leftJoin('users', 'users.id', 'corrections.user_id')
+        ->leftJoin('topics', 'topics.id', 'corrections.topic_id')
+        ->leftJoin('packages', 'packages.id', 'corrections.package_id')
+        ->leftJoin('package_types', 'package_types.id', 'corrections.package_type_id')
+        ->leftJoin('school_information', 'school_information.id', 'corrections.school_id')
+        ->where('corrections.id', $request->correction_id)
+        ->first();
+
+        $startTime = Carbon::parse(Carbon::now());
+        $finishTime = Carbon::parse($correction_details->deadline);
+
+        if ($correction_date->gte($finishTime)) { 
+            $correction_details->duration = 0;
+        }else{
+            $correction_details->duration = $finishTime->diffInSeconds($startTime);
+        }
+
+        if($correction_details->expert_id){
+            $expert = User::where('id', $correction_details->expert_id)->first();
+            if(!empty($expert)){
+                $correction_details->expert_name = $expert->name;
+                $correction_details->expert_email = $expert->email;
+                $correction_details->expert_image = $expert->image;
+            }else{
+                $correction_details->expert_name = null;
+                $correction_details->expert_email = null;
+                $correction_details->expert_image = null;
+            }
+        }else{
+            $correction_details->expert_name = null;
+            $correction_details->expert_email = null;
+            $correction_details->expert_image = null;
+        }
+
+        if($correction_details->admin_id){
+            $admin = User::where('id', $correction_details->admin_id)->first();
+            if(!empty($admin)){
+                $correction_details->admin_name = $admin->name;
+                $correction_details->admin_email = $admin->email;
+                $correction_details->admin_image = $admin->image;
+            }else{
+                $correction_details->admin_name = null;
+                $correction_details->admin_email = null;
+                $correction_details->admin_image = null;
+            }
+        }else{
+            $correction_details->admin_name = null;
+            $correction_details->admin_email = null;
+            $correction_details->admin_image = null;
+        }
 
         return response()->json([
             'status' => true,

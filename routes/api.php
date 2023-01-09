@@ -72,13 +72,17 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::get('package-details-by-payment-id/{payment_id}', [PaymentController::class, 'packageDetailsByPaymentID']);
 
     //Submit Correction 
+    Route::post('check-availability', [CorrectionController::class, 'checkAvailable']);
     Route::post('submit-correction', [CorrectionController::class, 'submitCorrection']);
+    Route::post('edit-correction-by-student', [CorrectionController::class, 'editCorrectionByStudent']);
+
     Route::get('pending-correction-count', [CorrectionController::class, 'getPendingCorrectionCount']);
     Route::get('correction-list', [CorrectionController::class, 'getCorrectionList']);
     Route::get('correction-details-by-id/{correction_id}', [CorrectionController::class, 'getCorrectionDetailsByID']);
     Route::get('expert-correction-list', [CorrectionController::class, 'getExpertCorrectionList']);
     Route::post('accept-correction', [CorrectionController::class, 'acceptPendingCorrection']);
-    
+    Route::post('submit-feedback', [CorrectionController::class, 'submitFeedback']);
+
 });
 
 Route::any('{url}', function(){
