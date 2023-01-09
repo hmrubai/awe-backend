@@ -80,3 +80,11 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::post('accept-correction', [CorrectionController::class, 'acceptPendingCorrection']);
     
 });
+
+Route::any('{url}', function(){
+    return response()->json([
+        'status' => false,
+        'message' => 'Route Not Found!',
+        'data' => []
+    ], 404);
+})->where('url', '.*');
