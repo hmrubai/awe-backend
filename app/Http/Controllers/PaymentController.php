@@ -153,7 +153,7 @@ class PaymentController extends Controller
         ->leftJoin('packages', 'packages.id', 'payments.package_id')
         ->first();
 
-        $list = TopicConsume::select('topic_consumes.balance', 'topic_consumes.consumme', 'package_types.name as syllabus', 'topic_consumes.package_type_id')
+        $list = TopicConsume::select('topic_consumes.balance', 'topic_consumes.consumme', 'topic_consumes.expiry_date', 'package_types.name as syllabus', 'topic_consumes.package_type_id')
             ->leftJoin('package_types', 'package_types.id', 'topic_consumes.package_type_id')
             ->where('topic_consumes.user_id', $user_id)
             ->where('topic_consumes.payment_id', $payment_id)
@@ -162,9 +162,8 @@ class PaymentController extends Controller
 
         $details->balance = $list->sum('balance');
         $details->consumme = $list->sum('consumme');
-        $expiry_date = TopicConsume::select('expiry_date')->where('user_id', $user_id)->where('payment_id', $payment_id)->first();
-        $details->expiry_date = $expiry_date->expiry_date;
-        $details->details = $list;
+        $details->expiry_date = $list->pluck('expiry_date')->first();
+        $details->details = $list->map->only(['balance', 'consumme', 'syllabus', 'package_type_id']);
 
         return response()->json([
             'status' => true,

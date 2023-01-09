@@ -35,7 +35,10 @@ class Correction extends Model
         'student_correction_date',
         'expert_correction_date',
         'completed_date',
-        'rating'
+        'student_resubmission_date',
+        'expert_final_note_date',
+        'rating',
+        'rating_note'
     ];
 
     protected $casts = [

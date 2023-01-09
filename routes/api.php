@@ -11,6 +11,7 @@ use App\Http\Controllers\TopicController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\ConsumeController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\CorrectionController;
 
 
 Route::post('/auth/register', [AuthController::class, 'registerUser']);
@@ -34,7 +35,7 @@ Route::middleware('auth:sanctum')->group( function () {
 
     //Topic
     Route::get('all-topic-list', [TopicController::class, 'allTopicList']);
-    Route::get('filter-topic-list', [TopicController::class, 'fillterTopicList']);
+    Route::post('filter-topic-list', [TopicController::class, 'fillterTopicList']);
 
     //Package Details (For User)
     Route::get('my-package-list', [ConsumeController::class, 'myPackageList']);
@@ -69,5 +70,13 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::post('mobile/make-payment', [PaymentController::class, 'makePaymentMobile']);
     Route::get('payment-list', [PaymentController::class, 'myPaymentList']);
     Route::get('package-details-by-payment-id/{payment_id}', [PaymentController::class, 'packageDetailsByPaymentID']);
+
+    //Submit Correction 
+    Route::post('submit-correction', [CorrectionController::class, 'submitCorrection']);
+    Route::get('pending-correction-count', [CorrectionController::class, 'getPendingCorrectionCount']);
+    Route::get('correction-list', [CorrectionController::class, 'getCorrectionList']);
+    Route::get('correction-details-by-id/{correction_id}', [CorrectionController::class, 'getCorrectionDetailsByID']);
+    Route::get('expert-correction-list', [CorrectionController::class, 'getExpertCorrectionList']);
+    Route::post('accept-correction', [CorrectionController::class, 'acceptPendingCorrection']);
     
 });
