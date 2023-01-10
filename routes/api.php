@@ -82,7 +82,11 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::get('expert-correction-list', [CorrectionController::class, 'getExpertCorrectionList']);
     Route::post('accept-correction', [CorrectionController::class, 'acceptPendingCorrection']);
     Route::post('submit-feedback', [CorrectionController::class, 'submitFeedback']);
-
+    Route::get('mark-grade-list', [MasterSettingsController::class, 'markGradeList']);
+    Route::post('update-feedback', [CorrectionController::class, 'editFeedback']);
+    Route::post('student-resubmission', [CorrectionController::class, 'studentResubmission']);
+    Route::get('expert-dashboard', [CorrectionController::class, 'getMiniDashboardInfo']);
+    
 });
 
 Route::any('{url}', function(){

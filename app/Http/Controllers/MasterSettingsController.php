@@ -203,4 +203,16 @@ class MasterSettingsController extends Controller
             ], 200);
         }
     }
+
+    public function markGradeList(Request $request)
+    {
+        $grade = ['BelowSatisfaction', 'Satisfactory', 'Good', 'Better', 'Excellent'];
+
+        return response()->json([
+            'status' => true,
+            'message' => 'List Successful',
+            'data' => $grade
+        ], 200);
+    }
+
 }
