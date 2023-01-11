@@ -85,6 +85,8 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::get('mark-grade-list', [MasterSettingsController::class, 'markGradeList']);
     Route::post('update-feedback', [CorrectionController::class, 'editFeedback']);
     Route::post('student-resubmission', [CorrectionController::class, 'studentResubmission']);
+    Route::post('submit-final-note', [CorrectionController::class, 'submitExpertFinalNote']);
+    Route::post('submit-rating-by-student', [CorrectionController::class, 'submitStudentRating']);
     Route::get('expert-dashboard', [CorrectionController::class, 'getMiniDashboardInfo']);
     
 });

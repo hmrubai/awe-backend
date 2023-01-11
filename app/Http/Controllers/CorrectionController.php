@@ -746,7 +746,8 @@ class CorrectionController extends Controller
         Correction::where('id', $request->correction_id)->update([
             'student_rewrite' => $request->student_rewrite,
             'student_resubmission_date' => $correction_date,
-            'is_student_resubmited' => true
+            'is_student_resubmited' => true,
+            'is_seen_by_student' => true
         ]);
 
         $correction_details = $this->getCorrectionDetails($request->correction_id);
@@ -756,6 +757,132 @@ class CorrectionController extends Controller
             'message' => 'Correction updated successful.',
             'data' => $correction_details
         ], 200);
+    }
+
+    public function submitExpertFinalNote(Request $request)
+    {
+        $expert_id = $request->user()->id;
+        if(!$request->correction_id){
+            return response()->json([
+                'status' => false,
+                'message' => 'Please, attach correction ID!',
+                'data' => []
+            ], 200);
+        }
+
+        $correction_exist = Correction::where('id', $request->correction_id)->first();
+        //Check is package exist or not
+        if(empty($correction_exist)){
+            return response()->json([
+                'status' => false,
+                'message' => 'Correction not exist!!',
+                'data' => []
+            ], 200);
+        }
+
+        if($correction_exist->expert_id != $expert_id){
+            return response()->json([
+                'status' => false,
+                'message' => 'You can not modify another person\'s correction!',
+                'data' => []
+            ], 200);
+        }
+
+        if(!$correction_exist->is_student_resubmited){
+            return response()->json([
+                'status' => false,
+                'message' => 'You can not submit your note!!',
+                'data' => []
+            ], 200);
+        }
+
+        $correction_date = Carbon::now();
+
+        Correction::where('id', $request->correction_id)->update([
+            'expert_final_note' => $request->expert_final_note,
+            'expert_final_note_date' => $correction_date
+        ]);
+
+        $correction_details = $this->getCorrectionDetails($request->correction_id);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Note submitted successful.',
+            'data' => $correction_details
+        ], 200);
+    }
+
+    public function submitStudentRating(Request $request)
+    {
+        $student_id = $request->user()->id;
+
+        $correction_id = $request->correction_id ? $request->correction_id : 0;
+        $rating = $request->rating ? $request->rating : 0;
+        $rating_note = $request->rating_note ? $request->rating_note : null;
+
+        if(!$rating || !$correction_id){
+            return response()->json([
+                'status' => false,
+                'message' => 'Please, Enter rating & ID!',
+                'data' => []
+            ], 200);
+        }
+
+        $correction_details = Correction::where('id', $correction_id)->where('user_id', $student_id)->first();
+
+        if(!empty($correction_details))
+        {
+            if($correction_details->status != "Corrected"){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'You can not submit rating!',
+                    'data' => []
+                ], 200);
+            }
+
+            Correction::where('id', $correction_id)->update([
+                "rating" => $rating,
+                "rating_note" => $rating_note ? $rating_note : null
+            ]);
+
+            $get_reting = CorrectionRating::where('expert_id', $correction_details->expert_id)->first();
+
+            if(!empty($get_reting)){
+                CorrectionRating::where('id', $get_reting->id)->update([
+                    "total_rating"      => $get_reting->total_rating + $rating,
+                    "total_correction"  => $get_reting->total_correction + 1,
+                ]);
+
+                $rating_sum = CorrectionRating::where('expert_id', $correction_details->expert_id)->first();
+
+                CorrectionRating::where('id', $rating_sum->id)->update([
+                    "rating_avg" => $rating_sum->total_rating / $rating_sum->total_correction
+                ]);
+
+            }else{
+                CorrectionRating::create([
+                    "expert_id"      => $correction_details->expert_id,
+                    "total_rating"      => $rating,
+                    "total_correction"  => 1,
+                    "rating_avg"  => $rating
+                ]);
+            }
+
+            $correction_details = $this->getCorrectionDetails($request->correction_id);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Rating successful!',
+                'data' => $correction_details
+            ], 200);
+        }
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Please, check details',
+            'data' => []
+        ], 200);
+
     }
 
     public function getMiniDashboardInfo (Request $request)
