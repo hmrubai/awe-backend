@@ -136,4 +136,62 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
+    public function updateUser(Request $request)
+    {
+        $user_id = $request->user()->id;
+        try {
+            $validateUser = Validator::make($request->all(), 
+            [
+                'name' => 'required'
+            ]);
+
+            if($validateUser->fails()){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'validation error',
+                    'data' => $validateUser->errors()
+                ], 401);
+            }
+
+            $profile_image = null;
+            $profile_url = null;
+            if($request->hasFile('image')){
+                $image = $request->file('image');
+                $time = time();
+                $profile_image = "profile_image_" . $time . '.' . $image->getClientOriginalExtension();
+                $destinationProfile = 'uploads/profile';
+                $image->move($destinationProfile, $profile_image);
+                $profile_url = $destinationProfile . '/' . $profile_image;
+            }
+
+            User::where('id', $user_id)->update([
+                'name' => $request->name,
+                'contact_no' => $request->contact_no,
+                'country_id' => $request->country_id,
+                'address' => $request->address,
+                'institution' => $request->institution,
+                'education' => $request->education
+            ]);
+
+            if($request->hasFile('image')){
+                User::where('id', $user_id)->update([
+                    'image' => $profile_url
+                ]);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Updated Successful',
+                'data' => []
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage(),
+                'data' => []
+            ], 500);
+        }
+    }
 }

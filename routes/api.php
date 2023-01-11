@@ -24,6 +24,8 @@ Route::middleware('auth:sanctum')->group( function () {
         return $request->user();
     });
 
+    Route::post('profile-update', [AuthController::class, 'updateUser']);
+
     //Master Settings
     Route::get('syllabus-list', [MasterSettingsController::class, 'packageTypeList']);
     Route::get('grade-list', [MasterSettingsController::class, 'gradeList']);
