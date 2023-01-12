@@ -80,7 +80,7 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::post('check-availability', [CorrectionController::class, 'checkAvailable']);
     Route::post('submit-correction', [CorrectionController::class, 'submitCorrection']);
     Route::post('edit-correction-by-student', [CorrectionController::class, 'editCorrectionByStudent']);
-
+    Route::post('update-is-seen-by-student', [CorrectionController::class, 'updateIsSeenByStudent']);
     Route::get('pending-correction-count', [CorrectionController::class, 'getPendingCorrectionCount']);
     Route::get('correction-list', [CorrectionController::class, 'getCorrectionList']);
     Route::get('correction-details-by-id/{correction_id}', [CorrectionController::class, 'getCorrectionDetailsByID']);

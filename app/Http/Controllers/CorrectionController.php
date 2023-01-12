@@ -433,6 +433,48 @@ class CorrectionController extends Controller
         ], 200);
     }
 
+    public function updateIsSeenByStudent(Request $request)
+    {
+        $student_id = $request->user()->id;
+        if(!$request->correction_id){
+            return response()->json([
+                'status' => false,
+                'message' => 'Please, attach correction ID!',
+                'data' => []
+            ], 200);
+        }
+
+        $correction_exist = Correction::where('id', $request->correction_id)->first();
+        //Check is Correction exist or not
+        if(empty($correction_exist)){
+            return response()->json([
+                'status' => false,
+                'message' => 'You can not modify your correction! correction not found!',
+                'data' => $this->getCorrectionDetails($request->correction_id)
+            ], 200);
+        }
+
+        if($correction_exist->user_id != $student_id){
+            return response()->json([
+                'status' => false,
+                'message' => 'You can not modify someone correction!',
+                'data' => []
+            ], 200);
+        }
+
+        Correction::where('id', $request->correction_id)->update([
+            'is_seen_by_student' => true
+        ]);
+
+        $correction_details = $this->getCorrectionDetails($request->correction_id);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Correction updated successful.',
+            'data' => $correction_details
+        ], 200);
+    }
+
     public function getPendingCorrectionCount(Request $request)
     {
         $pending_list = Correction::where('is_accepted', true)->where('status', 'Accepted')->get();
