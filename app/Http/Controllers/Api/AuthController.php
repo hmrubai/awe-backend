@@ -137,21 +137,38 @@ class AuthController extends Controller
         }
     }
 
+    public function profileDetailsByID($user_id)
+    {
+        $user = User::select('users.*', 'countries.country_name')->where('users.id', $user_id)
+        ->leftJoin('countries', 'countries.id', 'users.country_id')
+        ->first();
+
+        return $user;
+    }
+
     public function updateUser(Request $request)
     {
         $user_id = $request->user()->id;
         try {
-            $validateUser = Validator::make($request->all(), 
-            [
-                'name' => 'required'
-            ]);
+            // $validateUser = Validator::make($request->all(), 
+            // [
+            //     'name' => 'required'
+            // ]);
 
-            if($validateUser->fails()){
+            // if($validateUser->fails()){
+            //     return response()->json([
+            //         'status' => false,
+            //         'message' => 'validation error',
+            //         'data' => $validateUser->errors()
+            //     ], 401);
+            // }
+
+            if(!$request->name && !$request->contact_no && !$request->country_id && !$request->address && !$request->institution && !$request->education && !$request->hasFile('image')){
                 return response()->json([
                     'status' => false,
-                    'message' => 'validation error',
-                    'data' => $validateUser->errors()
-                ], 401);
+                    'message' => 'Please, attach information!',
+                    'data' => []
+                ], 200);
             }
 
             $profile_image = null;
@@ -165,14 +182,50 @@ class AuthController extends Controller
                 $profile_url = $destinationProfile . '/' . $profile_image;
             }
 
-            User::where('id', $user_id)->update([
-                'name' => $request->name,
-                'contact_no' => $request->contact_no,
-                'country_id' => $request->country_id,
-                'address' => $request->address,
-                'institution' => $request->institution,
-                'education' => $request->education
-            ]);
+            if($request->name){
+                User::where('id', $user_id)->update([
+                    'name' => $request->name
+                ]);
+            }
+
+            if($request->contact_no){
+                User::where('id', $user_id)->update([
+                    'contact_no' => $request->contact_no
+                ]);
+            }
+
+            if($request->country_id){
+                User::where('id', $user_id)->update([
+                    'country_id' => $request->country_id
+                ]);
+            }
+
+            if($request->address){
+                User::where('id', $user_id)->update([
+                    'address' => $request->address
+                ]);
+            }
+
+            if($request->institution){
+                User::where('id', $user_id)->update([
+                    'institution' => $request->institution
+                ]);
+            }
+
+            if($request->education){
+                User::where('id', $user_id)->update([
+                    'education' => $request->education
+                ]);
+            }
+
+            // User::where('id', $user_id)->update([
+            //     'name' => $request->name,
+            //     'contact_no' => $request->contact_no,
+            //     'country_id' => $request->country_id,
+            //     'address' => $request->address,
+            //     'institution' => $request->institution,
+            //     'education' => $request->education
+            // ]);
 
             if($request->hasFile('image')){
                 User::where('id', $user_id)->update([
@@ -183,7 +236,7 @@ class AuthController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Updated Successful',
-                'data' => []
+                'data' => $this->profileDetailsByID($user_id)
             ], 200);
 
         } catch (\Throwable $th) {
@@ -193,5 +246,33 @@ class AuthController extends Controller
                 'data' => []
             ], 500);
         }
+    }
+
+    public function getProfile(Request $request)
+    {
+        $user_id = $request->user()->id;
+        $user = User::select('users.*', 'countries.country_name')->where('users.id', $user_id)
+        ->leftJoin('countries', 'countries.id', 'users.country_id')
+        ->first();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Successful',
+            'data' => $user
+        ], 200);
+    }
+
+    public function getExpertList(Request $request)
+    {
+        $users = User::select('users.id', 'users.name', 'users.email', 'users.contact_no', 'users.address', 'users.education', 'users.institution', 'users.image', 'countries.country_name')
+        ->where('users.user_type', 'Expert')
+        ->leftJoin('countries', 'countries.id', 'users.country_id')
+        ->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Successful',
+            'data' => $users
+        ], 200);
     }
 }

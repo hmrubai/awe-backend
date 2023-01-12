@@ -18,11 +18,14 @@ Route::post('/auth/register', [AuthController::class, 'registerUser']);
 Route::post('/auth/login', [AuthController::class, 'loginUser']);
 Route::get('country-list', [MasterSettingsController::class, 'countryList']);
 Route::get('school-list', [SchoolController::class, 'schoolList']);
+Route::get('get-expert-list', [AuthController::class, 'getExpertList']);
 
 Route::middleware('auth:sanctum')->group( function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+    Route::get('get-profile', [AuthController::class, 'getProfile']);
 
     Route::post('profile-update', [AuthController::class, 'updateUser']);
 
