@@ -49,7 +49,7 @@ class CorrectionController extends Controller
         if(!sizeof($correction_consume)){
             return response()->json([
                 'status' => false,
-                'message' => 'You do not have any correction limit!, Please check your package details!',
+                'message' => 'Correction limit exceeded!, Please check your package details!',
                 'data' => []
             ], 200);
         }
@@ -78,7 +78,7 @@ class CorrectionController extends Controller
 
         return response()->json([
             'status' => false,
-            'message' => 'You do not have any correction limit!, Please check your package details!',
+            'message' => 'Correction limit exceeded!, Please check your package details!',
             'data' => []
         ], 200);
     }
@@ -225,7 +225,7 @@ class CorrectionController extends Controller
         if(empty($correction_consume)){
             return response()->json([
                 'status' => false,
-                'message' => 'You do not have any correction limit!, Please check your package details!',
+                'message' => 'Please check your package details!',
                 'data' => []
             ], 200);
         }
@@ -233,7 +233,7 @@ class CorrectionController extends Controller
         if($correction_consume->balance <= $correction_consume->consumme){
             return response()->json([
                 'status' => false,
-                'message' => 'You do not have any correction limit!, Please check your package details!',
+                'message' => 'Correction limit exceeded!, Please check your package details!',
                 'data' => []
             ], 200);
         }
