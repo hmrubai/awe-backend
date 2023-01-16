@@ -24,7 +24,8 @@ class User extends Authenticatable
         'country_id',
         'school_id',
         'password',
-        'user_type'
+        'user_type',
+        'is_active'
     ];
 
     protected $hidden = [
@@ -34,6 +35,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_active' => 'boolean'
     ];
 
     public function createToken(string $name, array $abilities = ['*'])

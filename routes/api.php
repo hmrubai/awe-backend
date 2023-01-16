@@ -70,6 +70,10 @@ Route::middleware('auth:sanctum')->group( function () {
 
     Route::get('admin/school-list', [SchoolController::class, 'adminSchoolList']);
     Route::post('admin/school-save-or-update', [SchoolController::class, 'saveOrUpdateSchool']);
+    Route::get('admin/expert-list', [AuthController::class, 'getAdminExpertList']);
+    Route::post('admin/save-update-expert', [AuthController::class, 'saveOrUpdateUser']);
+    Route::get('admin/payment-list', [PaymentController::class, 'adminPaymentList']);
+    Route::post('delete-account', [AuthController::class, 'deleteUserAccount']);
     
     //Payment 
     Route::post('mobile/make-payment', [PaymentController::class, 'makePaymentMobile']);

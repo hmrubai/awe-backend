@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 
+use Exception;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -108,6 +109,14 @@ class AuthController extends Controller
 
             $user = User::where('email', $request->email)->first();
 
+            if(!$user->is_active){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Your account has been suspended. Please, contact to Administrator!',
+                    'data' => []
+                ], 401);
+            }
+
             $response_user = [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -144,6 +153,98 @@ class AuthController extends Controller
         ->first();
 
         return $user;
+    }
+
+    public function saveOrUpdateUser(Request $request)
+    {
+        try {
+            $formData = json_decode($request->data, true);
+            if($formData['id']){
+                $profile_url = null;
+                if($request->hasFile('file')){
+                    $image = $request->file('file');
+                    $time = time();
+                    $feature_image = "profile_image_" . $time . '.' . $image->getClientOriginalExtension();
+                    $destinationProfile = 'uploads/profile';
+                    $image->move($destinationProfile, $feature_image);
+                    $profile_url = $destinationProfile . '/' . $feature_image;
+                }
+
+                User::where('id', $formData['id'])->update([
+                    'name' => $formData['name'],
+                    'email' => $formData['email'],
+                    'contact_no' => $formData['contact_no'],
+                    'country_id' => $formData['country_id'],
+                    'address' => $formData['address'],
+                    'institution' => $formData['institution'],
+                    'education' => $formData['education'],
+                    'user_type' => $formData['user_type'] ? $formData['user_type'] : "Student"
+                ]);
+
+                if($request->hasFile('file')){
+                    User::where('id', $formData['id'])->update([
+                        'image' => $profile_url
+                    ]);
+                }
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'User has been updated successfully',
+                    'data' => []
+                ], 200);
+
+            } else {
+                $isExist = User::where('email', $formData['email'])->first();
+                if (empty($isExist)) 
+                {
+                    $profile_url = null;
+                    if($request->hasFile('file')){
+                        $image = $request->file('file');
+                        $time = time();
+                        $feature_image = "profile_image_" . $time . '.' . $image->getClientOriginalExtension();
+                        $destinationProfile = 'uploads/profile';
+                        $image->move($destinationProfile, $feature_image);
+                        $profile_url = $destinationProfile . '/' . $feature_image;
+                    }
+
+                    $user = User::create([
+                        'name' => $formData['name'],
+                        'email' => $formData['email'],
+                        'contact_no' => $formData['contact_no'],
+                        'country_id' => $formData['country_id'],
+                        'address' => $formData['address'],
+                        'institution' => $formData['institution'],
+                        'education' => $formData['education'],
+                        'user_type' => $formData['user_type'] ? $formData['user_type'] : "Student"
+                    ]);
+
+                    if($request->hasFile('file')){
+                        User::where('id', $user->id)->update([
+                            'image' => $profile_url
+                        ]);
+                    }
+
+                    return response()->json([
+                        'status' => true,
+                        'message' => 'User has been added successfully',
+                        'data' => []
+                    ], 200);
+                }else{
+                    return response()->json([
+                        'status' => false,
+                        'message' => 'User already Exist!',
+                        'data' => []
+                    ], 200);
+                }
+            }
+
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 200);
+        }
     }
 
     public function updateUser(Request $request)
@@ -266,6 +367,7 @@ class AuthController extends Controller
     {
         $users = User::select('users.id', 'users.name', 'users.email', 'users.contact_no', 'users.address', 'users.education', 'users.institution', 'users.image', 'countries.country_name')
         ->where('users.user_type', 'Expert')
+        ->where('users.is_active', true)
         ->leftJoin('countries', 'countries.id', 'users.country_id')
         ->get();
 
@@ -273,6 +375,39 @@ class AuthController extends Controller
             'status' => true,
             'message' => 'Successful',
             'data' => $users
+        ], 200);
+    }
+
+    public function getAdminExpertList(Request $request)
+    {
+        $users = User::select('users.*', 'countries.country_name')
+        ->where('users.user_type', 'Expert')
+        ->leftJoin('countries', 'countries.id', 'users.country_id')
+        ->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Successful',
+            'data' => $users
+        ], 200);
+    }
+
+    public function deleteUserAccount(Request $request)
+    {
+        $user_id = $request->user()->id;
+
+        $user = User::where('id', $user_id)->first();
+
+        User::where('id', $user_id)->update([
+            "contact_no" => $user_id . "_deleted_" . $user->contact_no,
+            "email" => $user_id . "_deleted_" . $user->email,
+            "is_active" => false
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Account deleted successful',
+            'data' => []
         ], 200);
     }
 }
