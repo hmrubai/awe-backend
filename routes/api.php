@@ -96,6 +96,8 @@ Route::middleware('auth:sanctum')->group( function () {
     
 });
 
+Route::post('trancate-data', [MasterSettingsController::class, 'trancateData']);
+
 Route::any('{url}', function(){
     return response()->json([
         'status' => false,

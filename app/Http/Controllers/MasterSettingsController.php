@@ -8,10 +8,32 @@ use App\Models\Grade;
 use App\Models\Country;
 use App\Models\Category;
 use App\Models\PackageType;
+
+use App\Models\Correction;
+use App\Models\CorrectionRating;
+use App\Models\Payment;
+use App\Models\PaymentDetail;
+use App\Models\TopicConsume;
+
 use Illuminate\Http\Request;
 
 class MasterSettingsController extends Controller
 {
+    public function trancateData(Request $request)
+    {
+        Correction::truncate();
+        CorrectionRating::truncate();
+        Payment::truncate();
+        PaymentDetail::truncate();
+        TopicConsume::truncate();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Truncated Successful',
+            'data' => []
+        ], 200);
+    }
+
     public function packageTypeList(Request $request)
     {
         $package_list = PackageType::select('id', 'name', 'price', 'limit')->where('is_active', true)->get();
