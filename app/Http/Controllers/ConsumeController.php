@@ -5,6 +5,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 use Auth;
+use App\Models\Payment;
+use App\Models\Package;
 use App\Models\TopicConsume;
 use Illuminate\Http\Request;
 
@@ -50,4 +52,42 @@ class ConsumeController extends Controller
             'data' => $package_list
         ], 200);
     }
+
+    public function myBalanceList(Request $request)
+    {
+        $user_id = $request->user()->id;
+
+        $package = Package::all();
+
+        $final_list = [];
+
+        foreach ($package as $item) {
+            $package_id = $item->id;
+            $now_time = date("Y-m-d H:i:s");
+
+            $package_list = TopicConsume::select('balance', 'consumme')
+                ->where('user_id', $user_id)
+                ->where('package_id', $package_id)
+                ->whereDate('expiry_date', '>', $now_time)
+                ->get();
+
+            $balance = 0;
+            if(sizeof($package_list)){
+                $balance = $package_list->sum('balance') - $package_list->sum('consumme');
+            }
+            
+            array_push($final_list, [
+                "package_id" => $item->id,
+                "title" => $item->title,
+                "balance" => $balance
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => "Successful",
+            'data' => $final_list
+        ], 200);
+    }
+
 }

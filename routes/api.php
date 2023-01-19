@@ -97,6 +97,8 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::post('submit-final-note', [CorrectionController::class, 'submitExpertFinalNote']);
     Route::post('submit-rating-by-student', [CorrectionController::class, 'submitStudentRating']);
     Route::get('expert-dashboard', [CorrectionController::class, 'getMiniDashboardInfo']);
+
+    Route::get('my-balance-list', [ConsumeController::class, 'myBalanceList']);
     
 });
 

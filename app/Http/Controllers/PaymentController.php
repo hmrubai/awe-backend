@@ -81,27 +81,29 @@ class PaymentController extends Controller
 
             $package_type = PackageType::where('id', $item['package_type_id'])->first();
 
-            PaymentDetail::create([
-                "user_id" => $user_id,
-                "school_id" => $user->school_id,
-                "package_id" => $request->package_id,
-                "package_type_id" => $item['package_type_id'],
-                "payment_id" => $payment->id,
-                "unit_price" => $package_type->price,
-                "quantity" => $item['quantity'],
-                "total" => $item['quantity'] * $package_type->price,
-            ]);
-
-            TopicConsume::create([
-                "user_id" => $user_id,
-                "school_id" => $user->school_id,
-                "package_id" => $request->package_id,
-                "package_type_id" => $item['package_type_id'],
-                "payment_id" => $payment->id,
-                "balance" => $item['quantity'],
-                "consumme" => 0,
-                "expiry_date" => $expiry_date
-            ]);
+            if($item['quantity']){
+                PaymentDetail::create([
+                    "user_id" => $user_id,
+                    "school_id" => $user->school_id,
+                    "package_id" => $request->package_id,
+                    "package_type_id" => $item['package_type_id'],
+                    "payment_id" => $payment->id,
+                    "unit_price" => $package_type->price,
+                    "quantity" => $item['quantity'],
+                    "total" => $item['quantity'] * $package_type->price,
+                ]);
+    
+                TopicConsume::create([
+                    "user_id" => $user_id,
+                    "school_id" => $user->school_id,
+                    "package_id" => $request->package_id,
+                    "package_type_id" => $item['package_type_id'],
+                    "payment_id" => $payment->id,
+                    "balance" => $item['quantity'],
+                    "consumme" => 0,
+                    "expiry_date" => $expiry_date
+                ]);
+            }
         }
 
         return response()->json([
