@@ -98,8 +98,12 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::post('submit-rating-by-student', [CorrectionController::class, 'submitStudentRating']);
     Route::get('expert-dashboard', [CorrectionController::class, 'getMiniDashboardInfo']);
 
-    Route::get('my-balance-list', [ConsumeController::class, 'myBalanceList']);
-    
+    Route::get('my-balance-list', [ConsumeController::class, 'myBalanceList']); 
+});
+
+Route::group(['prefix' => 'open'], function(){
+    // Package 
+    Route::get('package-list', [PackageController::class, 'packageList']);
 });
 
 Route::post('trancate-data', [MasterSettingsController::class, 'trancateData']);
