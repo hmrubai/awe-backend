@@ -104,6 +104,7 @@ Route::middleware('auth:sanctum')->group( function () {
 Route::group(['prefix' => 'open'], function(){
     // Package 
     Route::get('package-list', [PackageController::class, 'packageList']);
+    Route::get('package-details-by-id/{package_id}', [PackageController::class, 'packageDetailsByID']);
 });
 
 Route::post('trancate-data', [MasterSettingsController::class, 'trancateData']);
