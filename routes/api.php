@@ -80,6 +80,9 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::get('payment-list', [PaymentController::class, 'myPaymentList']);
     Route::get('package-details-by-payment-id/{payment_id}', [PaymentController::class, 'packageDetailsByPaymentID']);
 
+    //Payment Web
+    Route::post('web/make-payment', [PaymentController::class, 'makePaymentWeb']);
+
     //Submit Correction 
     Route::post('check-availability', [CorrectionController::class, 'checkAvailable']);
     Route::post('submit-correction', [CorrectionController::class, 'submitCorrection']);
