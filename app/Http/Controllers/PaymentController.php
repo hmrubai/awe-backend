@@ -113,10 +113,15 @@ class PaymentController extends Controller
         ], 200);
     }
 
+    public function generateTransactionID()
+    {
+        return "AEWID#" . date("y") . date("d") . mt_rand(1000,9999);
+    }
+
     public function makePaymentWeb (Request $request)
     {
         $user_id = $request->user()->id;
-        $transaction_id = $request->transaction_id;
+        $transaction_id = uniqid();
 
         //Check TRX ID 
         if($transaction_id){
@@ -126,14 +131,10 @@ class PaymentController extends Controller
                     'status' => false,
                     'message' => 'Payment information already exist!',
                     'data' => []
-                ], 200);
+                ], 409);
             }
         }else{
-            return response()->json([
-                'status' => false,
-                'message' => 'Please, enter valid information!',
-                'data' => []
-            ], 200);
+            $transaction_id = uniqid();
         }
 
         //Check Items
@@ -169,8 +170,8 @@ class PaymentController extends Controller
             "paid_amount" => $request->paid_amount,
             "discount_amount" => $request->discount_amount,
             "currency" => $request->currency,
-            "transaction_id" => $request->transaction_id,
-            "payment_type" => 'Mobile',
+            "transaction_id" => $transaction_id,
+            "payment_type" => 'Web',
             "payment_method" => $request->payment_method,
             "status" => 'Completed'
         ]);
@@ -206,7 +207,7 @@ class PaymentController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Payment Successful',
+            'message' => 'Payment has been completed successfully!',
             'data' => []
         ], 200);
     }
