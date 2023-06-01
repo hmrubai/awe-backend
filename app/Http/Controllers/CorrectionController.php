@@ -575,6 +575,8 @@ class CorrectionController extends Controller
             'corrections.is_seen_by_expert',
             'corrections.is_seen_by_student',
             'corrections.is_student_resubmited',
+            'corrections.student_correction_date',
+            'corrections.expert_correction_date',
             'corrections.status',
             'topics.title as topic_title',
             'users.name as student_name',

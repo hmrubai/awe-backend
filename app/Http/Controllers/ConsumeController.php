@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Auth;
 use App\Models\Payment;
 use App\Models\Package;
+use App\Models\PackageType;
 use App\Models\TopicConsume;
 use Illuminate\Http\Request;
 
@@ -50,6 +51,29 @@ class ConsumeController extends Controller
             'status' => true,
             'message' => "Successful",
             'data' => $package_list
+        ], 200);
+    }
+
+    public function myActiveSyllebusList(Request $request)
+    {
+        $payment_id = $request->payment_id ? $request->payment_id : 0;
+        if(!$payment_id){
+            return response()->json([
+                'status' => false,
+                'message' => 'Please, attach Package ID!',
+                'data' => []
+            ], 200);
+        }
+
+        $syllebus_list = TopicConsume::select('topic_consumes.package_type_id', 'package_types.name as syllebus_name', 'topic_consumes.balance', 'topic_consumes.consumme')
+            ->where('payment_id', $payment_id)
+            ->leftJoin('package_types', 'package_types.id', 'topic_consumes.package_type_id')
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Successful",
+            'data' => $syllebus_list
         ], 200);
     }
 

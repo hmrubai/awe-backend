@@ -44,7 +44,8 @@ Route::middleware('auth:sanctum')->group( function () {
 
     //Package Details (For User)
     Route::get('my-package-list', [ConsumeController::class, 'myPackageList']);
-
+    Route::get('my-active-syllebus-list/{payment_id}', [ConsumeController::class, 'myActiveSyllebusList']);
+    
     //Promotional Notice
     Route::get('promotional-news-list', [PromotionalNoticeController::class, 'promotionalNoticeList']);
 
