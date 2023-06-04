@@ -41,6 +41,7 @@ Route::middleware('auth:sanctum')->group( function () {
     //Topic
     Route::get('all-topic-list', [TopicController::class, 'allTopicList']);
     Route::post('filter-topic-list', [TopicController::class, 'fillterTopicList']);
+    Route::get('filter-topic-list/{syllabus_id}', [TopicController::class, 'fillterTopicListByTypeID']);
 
     //Package Details (For User)
     Route::get('my-package-list', [ConsumeController::class, 'myPackageList']);

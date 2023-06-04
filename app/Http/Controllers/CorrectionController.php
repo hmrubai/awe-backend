@@ -592,6 +592,7 @@ class CorrectionController extends Controller
         ->leftJoin('package_types', 'package_types.id', 'corrections.package_type_id')
         ->leftJoin('school_information', 'school_information.id', 'corrections.school_id')
         ->where('corrections.user_id', $student_id)
+        ->orderBy('id', "DESC")
         ->get();
 
         foreach ($correction_list as $item) 

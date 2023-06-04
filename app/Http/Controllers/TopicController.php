@@ -93,6 +93,45 @@ class TopicController extends Controller
         ], 200);
     }
 
+    public function fillterTopicListByTypeID(Request $request)
+    {
+        $package_type_id = $request->syllabus_id ? $request->syllabus_id : 0;
+
+        $topic_list = Topic::select(
+                'topics.id', 
+                'topics.title', 
+                'topics.hint', 
+                'topics.country_id',
+                'countries.country_name',
+                'topics.package_type_id as syllabus_id',
+                'package_types.name as syllabus_name',
+                'topics.catagory_id',
+                'categories.name as category_name',
+                'topics.grade_id',
+                'grades.name as grade_name',
+                'topics.school_id',
+                'school_information.title as school_name',
+                'topics.limit'
+            )
+            ->when($package_type_id, function ($query) use ($package_type_id){
+                return $query->where('topics.package_type_id', $package_type_id);
+            })
+            ->leftJoin('countries', 'countries.id', 'topics.country_id')
+            ->leftJoin('package_types', 'package_types.id', 'topics.package_type_id')
+            ->leftJoin('categories', 'categories.id', 'topics.catagory_id')
+            ->leftJoin('grades', 'grades.id', 'topics.grade_id')
+            ->leftJoin('school_information', 'school_information.id', 'topics.school_id')
+            ->orderBy('topics.title', 'ASC')
+            ->where('topics.is_active', true)
+            ->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Filtered List',
+            'data' => $topic_list
+        ], 200);
+    }
+
     public function adminTopicList(Request $request)
     {
         $topic_list = Topic::select(
