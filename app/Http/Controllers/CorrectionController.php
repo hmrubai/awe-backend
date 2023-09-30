@@ -668,6 +668,8 @@ class CorrectionController extends Controller
             'corrections.is_seen_by_expert',
             'corrections.is_seen_by_student',
             'corrections.is_student_resubmited',
+            'corrections.student_correction_date',
+            'corrections.expert_correction_date',
             'corrections.status',
             'topics.title as topic_title',
             'users.name as student_name',
@@ -683,6 +685,7 @@ class CorrectionController extends Controller
         ->leftJoin('package_types', 'package_types.id', 'corrections.package_type_id')
         ->leftJoin('school_information', 'school_information.id', 'corrections.school_id')
         ->where('corrections.expert_id', $expert_id)
+        ->orderBy('id', 'DESC')
         ->get();
 
         $expert = User::where('id', $expert_id)->first();

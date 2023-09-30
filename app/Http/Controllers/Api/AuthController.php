@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api;
 use Exception;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -106,6 +107,9 @@ class AuthController extends Controller
                     'data' => []
                 ], 401);
             }
+
+            Log::debug('An informational message.');
+            Log::channel('#testing')->info('Something happened!');
 
             $user = User::where('email', $request->email)->first();
 
