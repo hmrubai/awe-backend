@@ -103,6 +103,8 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::post('submit-rating-by-student', [CorrectionController::class, 'submitStudentRating']);
     Route::get('expert-dashboard', [CorrectionController::class, 'getMiniDashboardInfo']);
 
+    Route::post('gemini/generate', [CorrectionController::class, 'evaluateStudentAnswer']);
+
     Route::get('my-balance-list', [ConsumeController::class, 'myBalanceList']); 
 });
 

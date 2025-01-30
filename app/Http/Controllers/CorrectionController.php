@@ -15,9 +15,17 @@ use App\Models\CorrectionRating;
 use App\Models\TopicConsume;
 use App\Models\PackageType;
 use Illuminate\Http\Request;
+use App\Services\GeminiService;
 
 class CorrectionController extends Controller
 {
+    protected $geminiService;
+
+    public function __construct(GeminiService $geminiService)
+    {
+        $this->geminiService = $geminiService;
+    }
+
     public function getUTCTime($date) {
         return new Carbon($date, 'UTC');
     }
@@ -263,9 +271,19 @@ class CorrectionController extends Controller
 
         //Consume Update
 
-        TopicConsume::where('id', $correction_consume->id)->update([
-            "consumme" => $correction_consume->consumme + 1
-        ]);
+        // TopicConsume::where('id', $correction_consume->id)->update([
+        //     "consumme" => $correction_consume->consumme + 1
+        // ]);
+
+
+        $gimini_response = $this->evaluateAnswer($topic->title, $request->student_correction);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Correction submitted successful.',
+            'data' => $gimini_response
+        ], 200);
+
 
         $correction_details = Correction::select(
             'corrections.id',
@@ -332,6 +350,27 @@ class CorrectionController extends Controller
             'message' => 'Correction submitted successful.',
             'data' => $correction_details
         ], 200);
+    }
+
+    public function evaluateAnswer($question = null, $student_answer = null)
+    {
+        $response = $this->geminiService->evaluateAnswer($question, $student_answer);
+        return response()->json($response);
+    }
+
+    public function evaluateStudentAnswer(Request $request)
+    {
+        $request->validate([
+            'question' => 'required|string',
+            'student_answer' => 'required|string',
+        ]);
+
+        $question = $request->input('question');
+        $studentAnswer = $request->input('student_answer');
+
+        $response = $this->geminiService->evaluateAnswer($question, $studentAnswer);
+
+        return response()->json($response);
     }
 
     public function editCorrectionByStudent(Request $request)
