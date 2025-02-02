@@ -270,20 +270,37 @@ class CorrectionController extends Controller
         ]);
 
         //Consume Update
+        TopicConsume::where('id', $correction_consume->id)->update([
+            "consumme" => $correction_consume->consumme + 1
+        ]);
 
-        // TopicConsume::where('id', $correction_consume->id)->update([
-        //     "consumme" => $correction_consume->consumme + 1
-        // ]);
+        // ************************ Gemini Integration ************************
+        $gemini_response = $this->evaluateAnswer($topic->title, $request->student_correction);
+        $php_array = json_encode($gemini_response, true);
+        $gemini_data = json_decode($php_array, true);
 
+        // Extract the "corrected_answer, suggestions, marking"
+        $corrected_answer = $gemini_data['original']['corrected_answer'] ?? 'No corrected answer available';
+        $corrected_suggestions = $gemini_data['original']['suggestions'] ?? 'No suggestion is available';
+        $corrected_grade = 'Good';
 
-        $gimini_response = $this->evaluateAnswer($topic->title, $request->student_correction);
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Correction submitted successful.',
-            'data' => $gimini_response
-        ], 200);
-
+        Correction::where('id', $correction->id)->update([
+            'status' => "Corrected",
+            'expert_correction_note' => $corrected_answer,
+            'expert_correction_feedback' => $corrected_suggestions,
+            'grade' => $corrected_grade,
+            'expert_correction_date' => $correction_date,
+            'completed_date' => $correction_date,
+            "is_accepted" => true,
+            'status' => "Corrected",
+            'accepted_date' => Carbon::now(),
+            'is_seen_by_expert' => true,
+            'deadline' => Carbon::now()->addHours(2),
+            'expert_id' => 27,
+            'expert_correction_date' => $correction_date,
+            'completed_date' => $correction_date
+        ]);
+        // ************************ End of Gemini Integration ************************
 
         $correction_details = Correction::select(
             'corrections.id',
